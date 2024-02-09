@@ -1,0 +1,8 @@
+
+# Camera params
+camera_index: 1  # Change this to your camera index
+start_camera: True
+
+# server params
+stream: True
+server_ip: http://127.0.0.1:5000/update_data
