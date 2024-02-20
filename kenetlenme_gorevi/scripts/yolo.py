@@ -8,9 +8,8 @@ from ultralytics import YOLO
 # Load the YOLOv8 model
 model = YOLO('yolov8n.pt')
 
-# Open the video file
-video_path = "path/to/video.mp4"
-cap = cv2.VideoCapture(video_path)
+# capture published image 
+cap = cv2.VideoCapture("camera/image")
 
 # Store the track history
 track_history = defaultdict(lambda: [])

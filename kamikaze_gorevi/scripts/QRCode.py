@@ -1,46 +1,50 @@
 #!/usr/bin/env python3
-import rospy 
-from pyzbar import pyzbar
+import rospy
 import cv2
+from sensor_msgs.msg import Image 
+from cv_bridge import CvBridge as bridge
+from pyzbar import pyzbar
 import webbrowser
+import datetime
 
 def qr_code_scanner():
     rospy.init_node('qr_code_scanner', anonymous=True)
 
     # initialize the video capture
     print("[INFO] starting video stream...")
-    cap = cv2.VideoCapture(0)  # Use the default camera (index 0)
+    cap = cv2.VideoCapture("camera/image")  # Use the default camera (index 0)
 
     # check if the video capture is successful
     if not cap.isOpened():
         print("Error: Unable to open video capture.")
         exit()
 
-    # loop over the frames from the video capture
+    qr_scanned = False # Control condition for scanning QR just once
+
     while not rospy.is_shutdown():
-        # grab the frame from the video capture
         ret, frame = cap.read()
+
+        if ret:
+            # Convert OpenCV image to ROS image and publish
+            ros_image = bridge.cv2_to_imgmsg(frame, "bgr8")
         
-        # check if the frame is valid
-        if not ret:
-            print("Error: Unable to capture frame from video.")
-            break
+            # Find and decode QR codes in the frame
+            barcodes = pyzbar.decode(frame)
+            for barcode in barcodes:
+                
+                # Extract QR code data
+                qr_data = barcode.data.decode("utf-8")
 
-        # find the barcodes in the frame and decode each of the barcodes
-        barcodes = pyzbar.decode(frame)
-
-        # loop over the detected barcodes
-        for barcode in barcodes:
-            # extract the barcode data
-            barcodeData = barcode.data.decode("utf-8")
-
-            # if the barcode data starts with http, it's likely a URL
-            if barcodeData.startswith("http"):
-                # open the URL in a web browser
-                webbrowser.open(barcodeData)
-            else:
-                # display the text content of the QR code
-                print("QR Code Text:", barcodeData)
+                # Process QR code data (e.g., open URL)
+                if qr_data.startswith("http") and not qr_scanned:
+                    webbrowser.open(qr_data)
+                    qr_scanned = True
+                elif qr_scanned:
+                    # Get the current system time
+                    current_time = datetime.datetime.now()
+                    print(str(current_time) + " QR Scanned")
+                else:
+                    print("QR Code Text:", qr_data)
 
         # show the output frame
         cv2.imshow("Barcode Scanner", frame)
