@@ -1,0 +1,10 @@
+float64 IHA_boylam
+float64 IHA_dikilme
+float64 IHA_enlem
+float64 IHA_hiz
+float64 IHA_irtifa
+float64 IHA_otonom
+float64 IHA_yatis
+float64 IHA_yonelme
+float64 IHA_zamanfarki
+int32 takim_numarasi
