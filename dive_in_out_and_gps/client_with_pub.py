@@ -20,9 +20,9 @@ def callback(imu_msg, battery_msg, rel_altitude_msg, position_msg, speed_sub, st
         "IHA_enlem": position_msg.latitude,
         "IHA_boylam": position_msg.longitude,
         "IHA_irtifa": rel_altitude_msg.data,
-        "IHA_yonelme": imu_msg.orientation.x,
+        "IHA_yonelme": imu_msg.orientation.z,
         "IHA_dikilme": imu_msg.orientation.y,
-        "IHA_yatis": imu_msg.orientation.z,
+        "IHA_yatis": imu_msg.orientation.x,
         "IHA_hiz": calculate_speed(speed_sub.twist.linear.x, speed_sub.twist.linear.y, speed_sub.twist.linear.z),
         "IHA_batarya": int(battery_msg.percentage * 100),
         "IHA_otonom": mode_guided(state_sub.guided)
@@ -34,41 +34,43 @@ def callback(imu_msg, battery_msg, rel_altitude_msg, position_msg, speed_sub, st
     if response.status_code == 200:
         print(response.status_code)
         print(response.json())
-        parsed_data = response.json() # Assuming the server returns parsed data
-        for i in range(len(parsed_data['konumBilgileri'])):
-            for j in range(len(parsed_data['konumBilgileri'][i])):
-                data_to_be_published = parsed_data.get(j, parsed_data['konumBilgileri'][i])
-                
-            publish_parsed_data(data_to_be_published)  # Pass parsed_data and takim_numarasi
-            if i == len(parsed_data['konumBilgileri']):
-                i = 0
- 
-
+        parsed_data = response.json().get('konumBilgileri', []) #
     
+        for data in parsed_data: # iterate parsed data and publish it
+            publish_parsed_data(data)
+
+        if len(parsed_data) == 0: #reset index (if needed
+            i = 0
+
     else:
         print(f"Hata: {response.status_code}")
+
         
 
 def publish_parsed_data(parsed_data):
-    # Create ROS publisher for PlaneCoordinates message
     pub = rospy.Publisher('plane_coordinates_topic', PlaneControl, queue_size=10)
-    
-    # Create PlaneControl message
-    plane_data_msg = PlaneControl()
+    plane_data = PlaneControl()
+    upcomin_data = {
+        "IHA_boylam": data_dict['IHA_boylam'],
+        "IHA_dikilme": data_dict['IHA_dikilme'],
+        "IHA_enlem": data_dict['IHA_enlem'],
+        "IHA_hiz": data_dict['IHA_hiz'],
+        "IHA_irtifa": data_dict['IHA_irtifa'],
+        "IHA_otonom": data_dict['IHA_otonom'],
+        "IHA_yatis": data_dict['IHA_yatis'],
+        "IHA_yonelme": data_dict['IHA_yonelme'],
+        "takim_numarasi": data_dict['takim_numarasi']
+    }
 
+    for key, value in parsed_data.items(): # update with upcoming data
+        setattr(plane_data, key, value)
 
-    plane_data_msg.IHA_boylam = parsed_data.get('IHA_boylam', data_dict['IHA_boylam'])
-    plane_data_msg.IHA_dikilme = parsed_data.get('IHA_dikilme', data_dict['IHA_dikilme'])
-    plane_data_msg.IHA_enlem = parsed_data.get('IHA_enlem', data_dict['IHA_enlem'])
-    plane_data_msg.IHA_hiz = parsed_data.get('IHA_hiz', data_dict['IHA_hiz'])
-    plane_data_msg.IHA_irtifa = parsed_data.get('IHA_irtifa', data_dict['IHA_irtifa'])
-    plane_data_msg.IHA_otonom = parsed_data.get('IHA_otonom', data_dict['IHA_otonom'])
-    plane_data_msg.IHA_yatis = parsed_data.get('IHA_yatis', data_dict['IHA_yatis'])
-    plane_data_msg.IHA_yonelme = parsed_data.get('IHA_yonelme', data_dict['IHA_yonelme'])
-    plane_data_msg.takim_numarasi = parsed_data.get('takim_numarasi', data_dict['takim_numarasi'])  # Assuming default value is 0 for int type
+    for key, value in upcomin_data.items(): 
+        if getattr(plane_data, key) is None: # if theres missing val fill it
+            setattr(plane_data, key, value)
+            
+    pub.publish(plane_data)
 
-    # Publish the message
-    pub.publish(plane_data_msg)
 
 
        
