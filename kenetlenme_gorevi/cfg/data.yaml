@@ -1,0 +1,7 @@
+train: /home/valvarn/Downloads/train/train_set
+test: /home/valvarn/Downloads/train/test_set
+val:  /home/valvarn/Downloads/train/val_set
+
+nc: 1
+
+names: [UAV]
