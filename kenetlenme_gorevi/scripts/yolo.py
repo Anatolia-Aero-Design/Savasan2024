@@ -6,7 +6,7 @@ import numpy as np
 from ultralytics import YOLO
 
 # Load the YOLOv8 model
-model = YOLO('yolov8n.pt')
+model = YOLO('/home/valvarn/Savasan2024/kenetlenme_gorevi/models/best_n.pt')
 
 # capture published image 
 cap = cv2.VideoCapture("camera/image")
