@@ -1,6 +1,6 @@
 
 # Camera params
-camera_index: 1  # Change this to your camera index
+camera_index: 0  # Change this to your camera index
 start_camera: True
 
 # server params

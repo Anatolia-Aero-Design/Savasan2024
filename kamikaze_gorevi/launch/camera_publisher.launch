@@ -1,6 +1,8 @@
 <launch>
-    <param name="camera_index" command="rosparam load $(find savasan)/camera_params.yaml"/>
+    <param name="camera_index" command="rosparam load $(find savasan)/system_params.yaml"/>
     
     <node name="camera_publisher_node" pkg="savasan" type="camera_publisher_node.py" output="screen"/>
+    <node name="yolo" pkg="savasan" type="yolo.py" output"screen"/>
+        <param name="start_camera" type="bool" value="true"/>
 </launch>
  
