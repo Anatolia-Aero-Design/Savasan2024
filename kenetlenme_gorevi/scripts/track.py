@@ -5,10 +5,8 @@ import numpy as np
 
 from ultralytics import YOLO
 
-# Load the YOLOv8 model
-model = YOLO('/home/valvarn/savasan/kenetlenme_gorevi/models/best_n.pt')
-
-def tracker():
+def tracker(MODEL):
+    model = YOLO(MODEL) # Load the YOLOv8 model
     rospy.init_node('camera_publisher', anonymous=True)
     # Load camera index from parameter server
     camera_index = rospy.get_param('~camera_index', 0)  # Default index is 0
@@ -47,14 +45,15 @@ def tracker():
                     # Draw the tracking lines
                     points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
                     cv2.polylines(annotated_frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
+        
+        # Break the loop if the end of the video is reached
         else:
-            # Break the loop if the end of the video is reached
             break
 
 if __name__ == '__main__':
     try:
         if rospy.get_param('/start_camera', True):
-            tracker()
+            tracker('/home/valvarn/savasan/kenetlenme_gorevi/models/best_n.pt')
         else:
             pass
     except rospy.ROSInterruptException:
