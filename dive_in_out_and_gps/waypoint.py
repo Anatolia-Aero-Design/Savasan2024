@@ -12,36 +12,31 @@ TARGET_LATITUDE = -35.363276
 TARGET_LONGITUDE = 149.165283
 TARGET_ALTITUDE = 15.0  
 
-def calculate_waypoints_with_angle(target_lat, target_lon, angle_degrees):
+def calculate_waypoints_with_angle(target_lat, target_lon, angle_degrees,distance1,distance2,distance3):
     R = 6371000  # Radius of the Earth
 
     # Convert latitude and longitude from degrees to radians
     target_lat_rad = math.radians(target_lat)
     target_lon_rad = math.radians(target_lon)
 
-    # Calculate the distance in radians for 100 meters
-    delta_lon = math.atan2(ROAD_DISTANCE, R * math.cos(target_lat_rad))
-
     # Calculate the first waypoint (left) with the specified angle
-    wp1_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos((2 * ROAD_DISTANCE) / R) +
-                    math.cos(target_lat_rad) * math.sin((2 * ROAD_DISTANCE) / R) * math.cos(math.radians(angle_degrees)))
-    wp1_lon_rad = target_lon_rad + math.atan2(math.sin(math.radians(angle_degrees)) * math.sin((2 * ROAD_DISTANCE) / R) * math.cos(target_lat_rad),
-                    math.cos((2 * ROAD_DISTANCE) / R) - math.sin(target_lat_rad) * math.sin(wp1_lat_rad))
+    wp1_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos((2 * distance1) / R) +
+                    math.cos(target_lat_rad) * math.sin((2 * distance1) / R) * math.cos(math.radians(angle_degrees)))
+    wp1_lon_rad = target_lon_rad + math.atan2(math.sin(math.radians(angle_degrees)) * math.sin((2 * distance1) / R) * math.cos(target_lat_rad),
+                    math.cos((2 * distance1) / R) - math.sin(target_lat_rad) * math.sin(wp1_lat_rad))
 
     # Calculate the second waypoint (right) with the specified angle
-    wp2_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos(ROAD_DISTANCE / R) +
-                    math.cos(target_lat_rad) * math.sin(ROAD_DISTANCE / R) * math.cos(math.radians(angle_degrees)))
-    wp2_lon_rad = target_lon_rad + math.atan2(math.sin(math.radians(angle_degrees)) * math.sin(ROAD_DISTANCE / R) * math.cos(target_lat_rad),
-                    math.cos(ROAD_DISTANCE / R) - math.sin(target_lat_rad) * math.sin(wp2_lat_rad))
+    wp2_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos(distance2 / R) +
+                    math.cos(target_lat_rad) * math.sin(distance2 / R) * math.cos(math.radians(angle_degrees)))
+    wp2_lon_rad = target_lon_rad + math.atan2(math.sin(math.radians(angle_degrees)) * math.sin(distance2 / R) * math.cos(target_lat_rad),
+                    math.cos(distance2 / R) - math.sin(target_lat_rad) * math.sin(wp2_lat_rad))
 
     # Calculate the leaving waypoint (same latitude as target, different longitude)
-    #wp5_lat_rad = target_lat_rad
-    #wp5_lon_rad = target_lon_rad + delta_lon  # Adjusted longitude
-    
-    wp5_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos(ROAD_DISTANCE / R) +
-                    math.cos(target_lat_rad) * math.sin(ROAD_DISTANCE / R) * math.cos(math.radians(angle_degrees) + 180))
-    wp5_lon_rad = target_lon_rad + math.atan2(math.sin(math.radians(angle_degrees + 180)) * math.sin(ROAD_DISTANCE / R) * math.cos(target_lat_rad),
-                    math.cos(ROAD_DISTANCE / R) - math.sin(target_lat_rad) * math.sin(wp5_lat_rad))
+
+    wp5_lat_rad = math.asin(math.sin(target_lat_rad) * math.cos(distance3 / R) +
+                    math.cos(target_lat_rad) * math.sin(distance3 / R) * math.cos(math.radians(angle_degrees + 180)))
+    wp5_lon_rad = target_lon_rad + math.atan2(math.cos(math.radians(angle_degrees + 90)) * math.sin(distance3 / R) * math.cos(target_lat_rad),
+                    math.cos(distance3 / R) - math.sin(target_lat_rad) * math.sin(wp5_lat_rad))
 
     return [(math.degrees(wp1_lat_rad), math.degrees(wp1_lon_rad)),
             (math.degrees(wp2_lat_rad), math.degrees(wp2_lon_rad)),
@@ -82,7 +77,7 @@ def waypoints_with_angle(angle_degrees=286):
     waypoints.waypoints.append(wp1)
 
     # Calculate waypoints with the specified angle
-    calculated_waypoints = calculate_waypoints_with_angle(TARGET_LATITUDE, TARGET_LONGITUDE, angle_degrees)
+    calculated_waypoints = calculate_waypoints_with_angle(TARGET_LATITUDE, TARGET_LONGITUDE, angle_degrees,50,50,150)
 
     # Existing code...
     # Waypoint 2: Road waypoint 1
