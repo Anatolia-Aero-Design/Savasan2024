@@ -1,0 +1,10 @@
+<launch>
+	<!-- vim: set ft=xml noet : -->
+	<!-- example launch script for ArduPilot based FCU's -->
+    <node name="camera_publisher_node" pkg="savasan" type="camera_publisher_node.py" output="screen"/>
+         <param name="camera_index" command="rosparam load $(find savasan)/system_params.yaml"/>
+    
+    <node name="track" pkg="savasan" type="track.py" output="screen"/>
+        <param name="start_camera" type="bool" value="true"/>
+</launch>
+ 
